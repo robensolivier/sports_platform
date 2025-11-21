@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'matches.apps.MatchesConfig',
-    'players.apps.PlayersConfig'
+    'players.apps.PlayersConfig',
     'accounts.apps.AccountsConfig',
     'requests.apps.RequestsConfig',
     'payments.apps.PaymentsConfig',
