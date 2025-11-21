@@ -1,0 +1,33 @@
+# ======== Installation de base =======
+
+Django==5.0.1
+
+djangorestframework==3.14.0
+
+django-cors-headers==4.3.1
+
+# ========== Base de Donnee ======
+
+psycopg2-binary>=2.9.9 
+#responsable de la communication entre Django et PostgreSQL
+
+dj-database-url==2.1.0
+#Librairie responsable des url de Neon
+
+
+# =========== Authentification ========
+
+pyJWT==2.8.0
+# Responsable des Encode/Decode des JSON JWT 
+
+# =========== Payment =================
+
+stripe==7.8.0
+
+# ============ Integration =============
+requests==2.31.0
+
+python-dotenv==1.0.0
+#En cas ou on cree des fichiers .env / .env.local
+
+Pillow>=10.2.0
