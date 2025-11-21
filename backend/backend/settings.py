@@ -60,6 +60,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'matches.apps.MatchesConfig',
+    'players.apps.PlayersConfig'
+    'accounts.apps.AccountsConfig',
+    'requests.apps.RequestsConfig',
+    'payments.apps.PaymentsConfig',
+    'tournaments.apps.TournamentsConfig',
+
+
+
 ]
 
 MIDDLEWARE = [
@@ -151,5 +160,50 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+# =============================================================================
+# CLERK CONFIGURATION
+# =============================================================================
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY= os.getenv('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY')
 CLERK_SECRET_KEY= os.getenv('CLERK_SECRET_KEY')
+
+# =============================================================================
+# STRIPE CONFIGURATION
+# =============================================================================
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
+
+# =============================================================================
+# LOGGING (optionnel mais recommandé)
+# =============================================================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
