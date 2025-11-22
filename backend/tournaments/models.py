@@ -44,7 +44,6 @@ class Team(models.Model):
 
     @property
     def current_capacity(self):
-        return self.members.count()  # Compte automatiquement les membres
-
+        return self.members.count()
     class Meta:
         db_table = 'teams'
