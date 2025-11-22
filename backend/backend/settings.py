@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+
 # Add these at the top of your settings.py
 import os
 from dotenv import load_dotenv
@@ -41,12 +42,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG") == 'True'
+DEBUG = os.getenv("DEBUG") == "True"
+
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+
 
 
 # Application definition
@@ -66,8 +70,6 @@ INSTALLED_APPS = [
     'requests.apps.RequestsConfig',
     'payments.apps.PaymentsConfig',
     'tournaments.apps.TournamentsConfig',
-
-
 
 ]
 
@@ -103,7 +105,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 
 
 # Password validation
@@ -207,3 +208,4 @@ LOGGING = {
         },
     },
 }
+
