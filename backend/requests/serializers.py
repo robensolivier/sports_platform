@@ -6,7 +6,7 @@ class JoinRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = JoinRequest
         fields = ['id', 'player', 'team', 'status', 'message', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'status', 'player', 'created_at', 'updated_at']
 
     # Validation des champs
     def validate_status(self, status):
@@ -24,27 +24,30 @@ class JoinRequestSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         """Validation globale de la demande"""
-        player = data.get('player')
         team = data.get('team')
-        
-        # Vérifier que le joueur et l'équipe existent
-        if not player:
-            raise serializers.ValidationError("Le joueur doit exister.")
+        # Pour la création, le joueur sera assigné dans perform_create, donc on ne vérifie pas ici
+        if self.instance:
+            player = data.get('player') or getattr(self.instance, 'player', None)
+            if not player:
+                raise serializers.ValidationError("Le joueur doit exister.")
+        else:
+            player = data.get('player')
+        # Vérifier que l'équipe existe
         if not team:
             raise serializers.ValidationError("L'équipe doit exister.")
-        
         # Vérifier qu'un joueur ne fait pas une demande pour rejoindre sa propre équipe
-        if team and hasattr(team, 'members') and player in team.members.all():
+        if player and team and hasattr(team, 'members') and player in team.members.all():
             raise serializers.ValidationError("Ce joueur fait déjà partie de cette équipe.")
-        
+        # Vérifier que l'équipe n'est pas pleine
+        if team and team.is_full:
+            raise serializers.ValidationError("Cette équipe est déjà complète.")
         # Vérifier qu'il n'y a pas déjà une demande en attente pour ce joueur/équipe
-        if self.instance is None:  # Création (pas mise à jour)
+        if self.instance is None and player:
             existing_request = JoinRequest.objects.filter(
-                player=player, 
-                team=team, 
+                player=player,
+                team=team,
                 status='pending'
             ).exists()
             if existing_request:
                 raise serializers.ValidationError("Une demande est déjà en attente pour ce joueur et cette équipe.")
-        
         return data
