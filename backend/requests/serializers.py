@@ -3,9 +3,11 @@ from .models import JoinRequest
 
 
 class JoinRequestSerializer(serializers.ModelSerializer):
+    tournament_name = serializers.CharField(source='team.tournament.name', read_only=True)
+
     class Meta:
         model = JoinRequest
-        fields = ['id', 'player', 'team', 'status', 'message', 'created_at', 'updated_at']
+        fields = ['id', 'player', 'team', 'tournament_name', 'status', 'message', 'created_at', 'updated_at']
         read_only_fields = ['id', 'status', 'player', 'created_at', 'updated_at']
 
     # Validation des champs
