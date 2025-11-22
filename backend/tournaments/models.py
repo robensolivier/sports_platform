@@ -14,6 +14,9 @@ class Tournament(models.Model):
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tournaments')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.name} - {self.city}"
+
     class Meta:
         db_table = 'tournaments'
 
@@ -28,6 +31,9 @@ class Team(models.Model):
     members = models.ManyToManyField(User, related_name='teams', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.name} ({self.tournament.name})"
+
     @property
     def available_spots(self):
         return self.max_capacity - self.current_capacity
@@ -35,6 +41,10 @@ class Team(models.Model):
     @property
     def is_full(self):
         return self.current_capacity >= self.max_capacity
+
+    @property
+    def current_capacity(self):
+        return self.members.count()  # Compte automatiquement les membres
 
     class Meta:
         db_table = 'teams'
