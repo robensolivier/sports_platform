@@ -74,7 +74,7 @@ export default function PlayerDetailPage({ params }: { params: { id: string } })
   }, [api, params.id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Téléchargement..</div>;
   }
 
   if (error) {
@@ -82,7 +82,7 @@ export default function PlayerDetailPage({ params }: { params: { id: string } })
   }
 
   if (!player) {
-    return <div>Player not found.</div>;
+    return <div>Joueur Introuvable.</div>;
   }
 
   return (
@@ -114,15 +114,15 @@ export default function PlayerDetailPage({ params }: { params: { id: string } })
           <div className="mt-4">
             <h3 className="font-semibold">Statistics</h3>
             <div className="grid grid-cols-2 gap-4 mt-2">
-              <p>Matches Played: {player.stats.matchesPlayed}</p>
-              <p>Wins: {player.stats.wins}</p>
-              <p>Losses: {player.stats.losses}</p>
-              <p>Win Rate: {player.stats.winRate}</p>
+              <p>Matches Joué: {player.stats.matchesPlayed}</p>
+              <p>Victoires: {player.stats.wins}</p>
+              <p>Défaites: {player.stats.losses}</p>
+              <p>Taux de victoire: {player.stats.winRate}</p>
             </div>
           </div>
         </CardContent>
         <CardFooter>
-          <p>Player ID: {params.id}</p>
+          <p>Joueur ID: {params.id}</p>
         </CardFooter>
       </Card>
     </div>

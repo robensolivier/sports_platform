@@ -7,12 +7,12 @@ import { useEffect, useState } from "react";
 const useApi = () => {
   const { getToken } = useAuth();
   const [api, setApi] = useState(axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
+    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   }));
 
   useEffect(() => {
     const newApi = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
+      baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
     });
 
     newApi.interceptors.request.use(

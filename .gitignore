@@ -1,7 +1,21 @@
-node_modules/
+# Environnements
 .env
-.env
-venv/
-*.pyc
+.env*
+# garde l'exemple
+!.env.example
+
+
+# Python
 __pycache__/
-db.sqlite3
+*.pyc
+
+# Django
+*.sqlite3
+
+# Node
+node_modules/
+.next/
+
+# OS
+.DS_Store
+>>>>>>> origin/main
