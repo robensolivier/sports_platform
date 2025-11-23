@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'matches.apps.MatchesConfig',
     'players.apps.PlayersConfig',
+    'organizers.apps.OrganizersConfig',
     'accounts.apps.AccountsConfig',
     'requests.apps.RequestsConfig',
     'payments.apps.PaymentsConfig',
