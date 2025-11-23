@@ -5,4 +5,6 @@ from .views import JoinRequestViewSet
 router = DefaultRouter()
 router.register(r'join-requests', JoinRequestViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+	path('api/', include(router.urls)),
+]

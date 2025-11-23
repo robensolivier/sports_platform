@@ -1,9 +1,13 @@
 from django.utils import timezone
 from rest_framework import serializers
 from .models import Match
+from tournaments.serializers import TeamSerializer
 
 
 class MatchSerializer(serializers.ModelSerializer):
+    team_a = TeamSerializer(read_only=True)
+    team_b = TeamSerializer(read_only=True)
+
     def validate(self, data):
         request = self.context.get('request')
         # PATCH: autoriser la modification de la date, du lieu et des scores (après le match uniquement)
