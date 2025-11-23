@@ -17,10 +17,6 @@ class TournamentAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ['name', 'get_tournament_name', 'current_capacity', 'max_capacity']
-    list_filter = ['tournament']
-    search_fields = ['name', 'tournament__name']
-
-    def get_tournament_name(self, obj):
-        return obj.tournament.name
-    get_tournament_name.short_description = 'Tournoi'
+    list_display = ['name', 'sport']
+    list_filter = ['sport']
+    search_fields = ['name', 'sport']

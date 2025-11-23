@@ -10,7 +10,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import useApi from "@/hooks/useApi";
+
+export const useApi = () => {
+  return {
+    get: async (path: string) => {
+      // Simple client-side wrapper around fetch; adjust base URL as needed.
+      const res = await fetch(path);
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+      const data = await res.json().catch(() => null);
+      return { data };
+    },
+    post: async (path: string, body: any) => {
+      const res = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+      const data = await res.json().catch(() => null);
+      return { data };
+    },
+  };
+};
 
 // Mock player data structure
 interface Player {

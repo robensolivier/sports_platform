@@ -18,29 +18,29 @@ export default function DashboardPage() {
           <Card className="hover:bg-gray-100 dark:hover:bg-gray-800">
             <CardHeader>
               <CardTitle>Tournaments</CardTitle>
-              <CardDescription>Manage your tournaments</CardDescription>
+              <CardDescription>Gerer les Tournois</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>View, create, edit, and delete tournaments.</p>
+              <p>Voir, créer, modifier et supprimer des tournois.</p>
             </CardContent>
           </Card>
         </Link>
         <Link href="/dashboard/teams">
           <Card className="hover:bg-gray-100 dark:hover:bg-gray-800">
             <CardHeader>
-              <CardTitle>Teams</CardTitle>
-              <CardDescription>Manage your teams</CardDescription>
+              <CardTitle>Équipes</CardTitle>
+              <CardDescription>Gérer vos Équipe</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>View and manage your teams.</p>
+              <p>Voir et Gérer vos Équipes.</p>
             </CardContent>
           </Card>
         </Link>
         <Link href="/dashboard/requests">
           <Card className="hover:bg-gray-100 dark:hover:bg-gray-800">
             <CardHeader>
-              <CardTitle>Join Requests</CardTitle>
-              <CardDescription>Manage join requests</CardDescription>
+              <CardTitle>Demanque Requests</CardTitle>
+              <CardDescription>Gérer Demande requests</CardDescription>
             </CardHeader>
             <CardContent>
               <p>Approve or deny requests to join your teams.</p>

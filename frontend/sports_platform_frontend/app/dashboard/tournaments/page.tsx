@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,15 +21,48 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import tournamentService from "../../services/tournamentService"; // Adjust the import path as necessary
+import useApi from "../../hooks/useApi"; // Import useApi
 
-// Mock data for tournaments
-const tournaments = [
-  { id: 1, name: "Summer Soccer Fest", sport: "Soccer", startDate: "2024-07-01", endDate: "2024-07-15" },
-  { id: 2, name: "Basketball Pro League", sport: "Basketball", startDate: "2024-08-10", endDate: "2024-08-25" },
-];
+type Tournament = {
+  id: string;
+  name: string;
+  sport: string;
+  start_date: string;
+  city: string;
+  // Add other fields from your backend Tournament model as needed
+};
 
 export default function TournamentsPage() {
   const [open, setOpen] = useState(false);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // Add error state
+  const api = useApi(); // Initialize api
+  const { getTournaments } = tournamentService(api); // Pass api to tournamentService
+
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        const data = await getTournaments();
+        setTournaments(data);
+      } catch (error: any) { // Catch any error type
+        console.error("Failed to fetch tournaments:", error);
+        setError(error.message || "Failed to load tournaments."); // Set user-friendly error message
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTournaments();
+  }, []);
+
+  if (loading) {
+    return <div className="container mx-auto p-4">Loading tournaments...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
+  }
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
@@ -59,16 +92,16 @@ export default function TournamentsPage() {
                 <Input id="sport" className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="startDate" className="text-right">
+                <Label htmlFor="start_date" className="text-right">
                   Start Date
                 </Label>
-                <Input id="startDate" type="date" className="col-span-3" />
+                <Input id="start_date" type="date" className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="endDate" className="text-right">
-                  End Date
+                <Label htmlFor="city" className="text-right">
+                  City
                 </Label>
-                <Input id="endDate" type="date" className="col-span-3" />
+                <Input id="city" className="col-span-3" />
               </div>
             </div>
             <DialogFooter>
@@ -83,7 +116,7 @@ export default function TournamentsPage() {
             <TableHead>Name</TableHead>
             <TableHead>Sport</TableHead>
             <TableHead>Start Date</TableHead>
-            <TableHead>End Date</TableHead>
+            <TableHead>City</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -92,8 +125,8 @@ export default function TournamentsPage() {
             <TableRow key={tournament.id}>
               <TableCell>{tournament.name}</TableCell>
               <TableCell>{tournament.sport}</TableCell>
-              <TableCell>{tournament.startDate}</TableCell>
-              <TableCell>{tournament.endDate}</TableCell>
+              <TableCell>{tournament.start_date}</TableCell>
+              <TableCell>{tournament.city}</TableCell>
               <TableCell>
                 <Button variant="outline" size="sm" className="mr-2">Edit</Button>
                 <Button variant="destructive" size="sm">Delete</Button>

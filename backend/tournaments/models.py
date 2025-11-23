@@ -25,25 +25,11 @@ class Team(models.Model):
     """Équipe dans un tournoi"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=200)
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='teams')
-    max_capacity = models.IntegerField(default=15)
-    current_capacity = models.IntegerField(default=0)
+    sport = models.CharField(max_length=50, default='Unknown') # Added sport field
     members = models.ManyToManyField(User, related_name='teams', blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} ({self.tournament.name})"
+        return f"{self.name}"
 
-    @property
-    def available_spots(self):
-        return self.max_capacity - self.current_capacity
-
-    @property
-    def is_full(self):
-        return self.current_capacity >= self.max_capacity
-
-    @property
-    def current_capacity(self):
-        return self.members.count()
     class Meta:
         db_table = 'teams'

@@ -8,25 +8,46 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useApi from "@/app/hooks/useApi";
 import { useEffect, useState } from "react";
+import playerService from "../services/playerService"; // Adjust the import path as necessary
+
+type Player = {
+  id: string;
+  full_name: string;
+  favorite_sport: string;
+  level: string;
+  city: string;
+};
 
 export default function PlayersPage() {
-  const [players, setPlayers] = useState([]);
-  const api = useApi();
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // Add error state
+  const { getPlayerProfiles } = playerService();
 
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const response = await api.get("/players/");
-        setPlayers(response.data);
-      } catch (error) {
-        console.error("Failed to fetch players", error);
+        const data = await getPlayerProfiles();
+        setPlayers(data);
+      } catch (error: any) { // Catch any error type
+        console.error("Failed to fetch players:", error);
+        setError(error.message || "Failed to load players."); // Set user-friendly error message
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchPlayers();
-  }, [api]);
+  }, []);
+
+  if (loading) {
+    return <div className="container mx-auto p-4">Loading players...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">

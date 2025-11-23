@@ -61,14 +61,14 @@ export default function Home() {
           {loading && <p className="text-center w-full col-span-full">Loading tournaments...</p>}
           {error && <p className="text-center w-full col-span-full text-red-500">{error}</p>}
           {!loading && !error && tournaments.length === 0 && (
-            <p className="text-center w-full col-span-full">No tournaments found.</p>
+            <p className="text-center w-full col-span-full">Aucun Tournois Trouvé.</p>
           )}
           {tournaments.map((tournament) => (
             <div key={tournament.id} className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{tournament.name}</h3>
               {/* Add more tournament details here */}
               <Link href={`/tournaments/${tournament.id}`}>
-                <Button variant="outline" className="mt-4">View Details</Button>
+                <Button variant="outline" className="mt-4">Voir Détails</Button>
               </Link>
             </div>
           ))}

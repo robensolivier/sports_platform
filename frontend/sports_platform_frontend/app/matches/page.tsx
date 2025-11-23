@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,18 +23,54 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useUser } from "@clerk/nextjs";
-
-// Mock data for matches
-const matches = [
-  { id: 1, teamA: "The Champions", teamB: "The Warriors", score: "3-2", date: "2024-07-05" },
-  { id: 2, teamA: "The Eagles", teamB: "The Titans", score: "101-98", date: "2024-08-15" },
-];
+import matchService from "../services/matchService"; // Adjust the import path as necessary
 
 export default function MatchesPage() {
+  type Team = {
+    name: string;
+  };
+
+  type Match = {
+    id: string;
+    team_a?: Team | null;
+    team_b?: Team | null;
+    score_a?: number | null;
+    score_b?: number | null;
+    date: string;
+  };
+
   const { user } = useUser();
   const [open, setOpen] = useState(false);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // Add error state
+  const { getMatches } = matchService();
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const data = await getMatches();
+        setMatches(data);
+      } catch (error: any) { // Catch any error type
+        console.error("Failed to fetch matches:", error);
+        setError(error.message || "Failed to load matches."); // Set user-friendly error message
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMatches();
+  }, []);
+
   // For now, we'll assume a user is an organizer if their username is 'organizer'
   const isOrganizer = user?.username === 'organizer';
+
+  if (loading) {
+    return <div className="container mx-auto p-4">Loading matches...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -88,9 +124,9 @@ export default function MatchesPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Team A</TableHead>
-            <TableHead>Team B</TableHead>
-            <TableHead>Score</TableHead>
+            <TableHead>Équipe A</TableHead>
+            <TableHead>Équipe B</TableHead>
+            <TableHead>Résultat</TableHead>
             <TableHead>Date</TableHead>
             <TableHead></TableHead>
           </TableRow>
@@ -98,13 +134,13 @@ export default function MatchesPage() {
         <TableBody>
           {matches.map((match) => (
             <TableRow key={match.id}>
-              <TableCell>{match.teamA}</TableCell>
-              <TableCell>{match.teamB}</TableCell>
-              <TableCell>{match.score}</TableCell>
-              <TableCell>{match.date}</TableCell>
+              <TableCell>{match.team_a?.name}</TableCell>
+              <TableCell>{match.team_b?.name}</TableCell>
+              <TableCell>{match.score_a} - {match.score_b}</TableCell>
+              <TableCell>{new Date(match.date).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Link href={`/matches/${match.id}`}>
-                  <p className="text-blue-500 hover:underline">View</p>
+                  <p className="text-blue-500 hover:underline">Voir</p>
                 </Link>
               </TableCell>
             </TableRow>

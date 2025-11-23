@@ -1,56 +1,70 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-// Dummy data for organizer dashboard
-const quickStats = {
-  tournamentsCreated: 5,
-  totalTeams: 48,
-  pendingRequests: 12,
+import useApi from "@/app/hooks/useApi";
+import tournamentService from "@/app/services/tournamentService";
+
+
+// Type pour les tournois
+type Tournament = {
+  id: string | number;
+  name: string;
+  start_date: string;
 };
 
-const dummyTournaments = [
-  { id: 1, name: "Summer Soccer Fest", status: "Ongoing" },
-  { id: 2, name: "Basketball Mania", status: "Upcoming" },
-  { id: 3, name: "Tennis Open", status: "Finished" },
-];
-
 export default function OrganizerDashboardPage() {
+  const api = useApi(); // Hook React ici
+  const { getOrganizerTournaments } = tournamentService(api); // Service pur
+
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        const data = await getOrganizerTournaments();
+        setTournaments(data);
+      } catch (err: any) {
+        console.error("Failed to fetch organizer tournaments:", err);
+        setError(err.message || "Impossible de charger les tournois.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTournaments();
+  }, [getOrganizerTournaments]);
+
+  const getTournamentStatus = (startDate: string) => {
+    const today = new Date();
+    const start = new Date(startDate);
+    return start > today ? "Upcoming" : "Ongoing";
+  };
+
+  if (loading) {
+    return <div className="container mx-auto p-4">Chargement des tournois...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto p-4 text-red-500">Erreur : {error}</div>;
+  }
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Tableau de bord de l'organisateur</h1>
 
-      {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Tournois Créés</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{quickStats.tournamentsCreated}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Équipes Totales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{quickStats.totalTeams}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Demandes en Attente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{quickStats.pendingRequests}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tournaments List */}
       <h2 className="text-2xl font-bold mb-4">Mes Tournois</h2>
       <Card>
         <CardContent>
@@ -63,13 +77,17 @@ export default function OrganizerDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dummyTournaments.map((tournament) => (
+              {tournaments.map((tournament) => (
                 <TableRow key={tournament.id}>
                   <TableCell>{tournament.name}</TableCell>
-                  <TableCell>{tournament.status}</TableCell>
+                  <TableCell>{getTournamentStatus(tournament.start_date)}</TableCell>
                   <TableCell>
-                    <Button variant="outline" size="sm" className="mr-2">Gérer</Button>
-                    <Button variant="destructive" size="sm">Annuler</Button>
+                    <Button variant="outline" size="sm" className="mr-2">
+                      Gérer
+                    </Button>
+                    <Button variant="destructive" size="sm">
+                      Annuler
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

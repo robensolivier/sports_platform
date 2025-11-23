@@ -40,9 +40,9 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
     <div className="container mx-auto p-4">
       {showConfirmation && (
         <Alert className="mb-4">
-          <AlertTitle>Request Sent!</AlertTitle>
+          <AlertTitle>Request envoyé!</AlertTitle>
           <AlertDescription>
-            Your request to join {team.name} has been sent.
+            Votre demande pour joindre  {team.name} a été envoyé.
           </AlertDescription>
         </Alert>
       )}
@@ -53,7 +53,7 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
               <CardTitle>{team.name}</CardTitle>
               <CardDescription>Sport: {team.sport}</CardDescription>
             </div>
-            <Button onClick={handleJoinRequest}>Join Team</Button>
+            <Button onClick={handleJoinRequest}>Rejoindre Équipe</Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -71,7 +71,7 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
           </div>
         </CardContent>
         <CardFooter>
-          <p>Team ID: {params.id}</p>
+          <p>Équipe ID: {params.id}</p>
         </CardFooter>
       </Card>
     </div>

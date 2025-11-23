@@ -1,7 +1,7 @@
 # players/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics
 
 from accounts.models import User
 from .models import PlayerProfile
@@ -21,15 +21,25 @@ class PlayerListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class PlayerProfileDetail(generics.RetrieveAPIView):
+    """
+    Nouvelle vue depuis feature/matches
+    GET /players/{id}/ -> récupérer un profil par user ID
+    """
+    queryset = PlayerProfile.objects.all()
+    serializer_class = PlayerProfileSerializer
+    lookup_field = 'user__id'  # Recherche par l'ID de l'utilisateur
+    permission_classes = [permissions.AllowAny]
+
+
 class PlayerProfileView(APIView):
     """
     Endpoint profil joueur.
 
     POST /players/profile/            -> créer / mettre à jour le profil
-    GET  /players/profile/?clerk_id= -> récupérer le profil d’un joueur
+    GET  /players/profile/?clerk_id= -> récupérer le profil d'un joueur
     """
 
-    # Pour les tests Postman, on laisse tout ouvert
     permission_classes = [permissions.AllowAny]
 
     # ------------------ utilitaire ------------------ #
@@ -76,8 +86,7 @@ class PlayerProfileView(APIView):
           "city": "...",
           "favorite_sport": "...",
           "level": "beginner/intermediate/advanced",
-          "position": "Soir, Week-end...",
-          "bio": "..."
+          "position": "Soir, Week-end..."
         }
         """
         clerk_id = request.data.get("clerk_id")
@@ -85,7 +94,7 @@ class PlayerProfileView(APIView):
         if error_response:
             return error_response
 
-        # vérifier que c’est bien un joueur
+        # vérifier que c'est bien un joueur
         if user.role != "player":
             return Response(
                 {"detail": "Cet utilisateur n'a pas le rôle 'player'"},

@@ -178,6 +178,9 @@ CORS_ALLOW_HEADERS = [
 # =============================================================================
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY= os.getenv('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY')
 CLERK_SECRET_KEY= os.getenv('CLERK_SECRET_KEY')
+CLERK_JWKS_URL = os.getenv('CLERK_JWKS_URL') # New
+CLERK_JWT_AUDIENCE = os.getenv('CLERK_JWT_AUDIENCE') # New
+CLERK_JWT_ISSUER = os.getenv('CLERK_JWT_ISSUER') # New
 
 # =============================================================================
 # STRIPE CONFIGURATION

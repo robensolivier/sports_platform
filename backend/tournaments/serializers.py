@@ -36,10 +36,20 @@ class TournamentSerializer(serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
+    members_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Team
-        fields = ['id', 'name', 'tournament', 'max_capacity', 'current_capacity', 'members', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'name', 'sport', 'members', 'members_count']
+        read_only_fields = ['id', 'members_count'] # members_count is read-only
+
+    def get_members_count(self, obj):
+        return obj.members.count()
+
+    def create(self, validated_data):
+        # Call the original create method
+        instance = super().create(validated_data)
+        return instance
 
     # Validation des champs
     def validate_name(self, name):
@@ -47,33 +57,9 @@ class TeamSerializer(serializers.ModelSerializer):
         if not name or not name.strip():
             raise serializers.ValidationError("Le nom de l'équipe est obligatoire.")
         return name.strip()
-    
-    def validate_max_capacity(self, max_capacity):
-        """Valider que la capacité maximale est positive et raisonnable"""
-        if max_capacity <= 0:
-            raise serializers.ValidationError("La capacité maximale doit être positive.")
-        if max_capacity > 100:
-            raise serializers.ValidationError("La capacité maximale ne peut pas dépasser 100 joueurs.")
-        return max_capacity
-    
-    def validate_current_capacity(self, current_capacity):
-        """Valider que la capacité actuelle n'est pas négative"""
-        if current_capacity < 0:
-            raise serializers.ValidationError("La capacité actuelle ne peut pas être négative.")
-        return current_capacity
-    
-    def validate(self, data):
-        """Validation globale de l'équipe"""
-        max_capacity = data.get('max_capacity')
-        current_capacity = data.get('current_capacity')
-        tournament = data.get('tournament')
-        
-        # Vérifier que le tournoi existe
-        if not tournament:
-            raise serializers.ValidationError("Le tournoi doit exister.")
-        
-        # Vérifier que la capacité actuelle ne dépasse pas la maximale
-        if max_capacity and current_capacity and current_capacity > max_capacity:
-            raise serializers.ValidationError("La capacité actuelle ne peut pas dépasser la capacité maximale.")
-        
-        return data
+
+    def validate_sport(self, sport):
+        """Valider que le sport n'est pas vide"""
+        if not sport or not sport.strip():
+            raise serializers.ValidationError("Le sport est obligatoire.")
+        return sport.strip()
