@@ -9,6 +9,10 @@ from rest_framework import status
 
 
 class JoinRequestViewSet(viewsets.ModelViewSet):
+    queryset = JoinRequest.objects.all()
+    serializer_class = JoinRequestSerializer
+    permission_classes = [IsAuthenticated]
+
     def update(self, request, *args, **kwargs):
         obj = self.get_object()
         status_value = request.data.get('status')
@@ -65,9 +69,6 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
     update: Met à jour une demande
     destroy: Supprime une demande
     """
-    queryset = JoinRequest.objects.all()
-    serializer_class = JoinRequestSerializer
-    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filtrer les demandes selon l'équipe"""
@@ -93,5 +94,5 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response({'erreur': 'L\'utilisateur peut uniquement supprimer ses propres demandes avec le status en attente'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'detail': 'L\'utilisateur peut uniquement supprimer ses propres demandes avec le status en attente'}, status=status.HTTP_403_FORBIDDEN)
 
