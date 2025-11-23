@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
 # Add these at the top of your settings.py
 import os
 from dotenv import load_dotenv
@@ -42,15 +41,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG") == "True"
-
+DEBUG = os.getenv("DEBUG") == 'True'
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
-
 
 
 # Application definition
@@ -71,6 +67,8 @@ INSTALLED_APPS = [
     'payments.apps.PaymentsConfig',
     'tournaments.apps.TournamentsConfig',
 
+
+
 ]
 
 MIDDLEWARE = [
@@ -81,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -107,6 +106,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -129,9 +129,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'fr-ca'
+LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'America/Toronto'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -148,9 +148,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS_ALLOWED_ORIGINS =[
-#     os.getenv('FRONTEND_URL','http://localhost:3000')
-# ]
+CORS_ALLOWED_ORIGINS =[
+    os.getenv('FRONTEND_URL','http://localhost:3000')
+]
 
 
 CORS_ALLOW_METHODS = [
@@ -208,4 +208,3 @@ LOGGING = {
         },
     },
 }
-
