@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .models import JoinRequest
@@ -8,6 +9,45 @@ from rest_framework import status
 
 
 class JoinRequestViewSet(viewsets.ModelViewSet):
+    def update(self, request, *args, **kwargs):
+        obj = self.get_object()
+        status_value = request.data.get('status')
+
+        """Modification du statut à accepted"""
+        if status_value == 'accepted':
+            team = obj.team
+            # Vérifier que seul l'organisateur peut modifier le statut
+            if team.tournament.organizer != request.user:
+                return Response({'erreur': "Seul l'organisateur de l'équipe peut accepter la demande."}, status=status.HTTP_403_FORBIDDEN)
+            # Vérifier que l'équipe n'est pas pleine
+            if hasattr(team, 'max_capacity') and hasattr(team, 'current_capacity'):
+                if team.current_capacity >= team.max_capacity:
+                    return Response({'erreur': "L'équipe est déjà pleine."}, status=status.HTTP_400_BAD_REQUEST)
+                # Ajouter le joueur à l'équipe
+                if hasattr(team, 'members'):
+                    team.members.add(obj.player)
+                team.save()
+            # Changer le statut de la demande
+            obj.status = 'accepted'
+            obj.save()
+            serializer = self.get_serializer(obj)
+            return Response(serializer.data)
+        
+        """Modification du statut à rejected"""
+        if status_value == 'rejected':
+            team = obj.team
+            # Vérifier que seul l'organisateur peut modifier le statut
+            if team.tournament.organizer != request.user:
+                return Response({'erreur': "Seul l'organisateur de l'équipe peut refuser la demande."}, status=status.HTTP_403_FORBIDDEN)
+            reason = request.data.get('message')
+            if reason:
+                obj.message = reason
+            obj.status = 'rejected'
+            obj.save()
+            serializer = self.get_serializer(obj)
+            return Response(serializer.data)
+
+        return super().update(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], url_path='my-requests')
     def my_requests(self, request):
@@ -30,15 +70,20 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Filtrer les demandes selon l'utilisateur"""
-        user = self.request.user
-        # Vous pouvez ajouter une logique pour filtrer par utilisateur
-        return JoinRequest.objects.all()
+        """Filtrer les demandes selon l'équipe"""
+        queryset = super().get_queryset()
+        team_id = self.request.query_params.get('team')
+        if team_id:
+            queryset = queryset.filter(team_id=team_id)
+        return queryset
     
     def perform_create(self, serializer):
-        """Assigner automatiquement le joueur lors de la création"""
-        # Assigne automatiquement l'utilisateur connecté comme joueur
-        serializer.save(player=self.request.user)
+        """Assigner automatiquement le joueur lors de la création, seulement si l'utilisateur est un joueur"""
+        user = self.request.user
+        # Vérifie que l'utilisateur a le rôle joueur
+        if getattr(user, 'role', None) != 'player':
+            raise PermissionDenied("Seuls les joueurs peuvent faire une demande d'adhésion.")
+        serializer.save(player=user)
 
     def destroy(self, request, *args, **kwargs):
         """Supprimer une demande d'adhésion en attente"""
