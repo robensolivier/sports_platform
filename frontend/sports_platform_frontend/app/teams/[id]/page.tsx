@@ -42,7 +42,7 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
         <Alert className="mb-4">
           <AlertTitle>Request envoyé!</AlertTitle>
           <AlertDescription>
-            Votre demande pour joindre  {team.name} a été envoyé.
+            Votre demande pour joindre {team.name} a été envoyé.
           </AlertDescription>
         </Alert>
       )}

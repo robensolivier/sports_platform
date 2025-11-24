@@ -14,30 +14,22 @@ class MatchViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        user = self.request.user
         tournament_id = self.request.query_params.get('tournament')
+        status = self.request.query_params.get('status')
+        now = timezone.now()
+
+        # Filtrer par tournoi si précisé
         if tournament_id:
-            try:
-                tournament = Tournament.objects.get(pk=tournament_id)
-            except Tournament.DoesNotExist:
-                return queryset.none()
-            if tournament.organizer != user:
-                return queryset.none()
             queryset = queryset.filter(
                 Q(team_a__tournament_id=tournament_id) | Q(team_b__tournament_id=tournament_id)
             )
-        # Filtrer les matchs où l'utilisateur est membre de l'une des équipes
-        elif user.is_authenticated:
-            queryset = queryset.filter(
-                Q(team_a__members=user) | Q(team_b__members=user)
-            )
+
         # Filtrer par statut
-        status = self.request.query_params.get('status')
-        now = timezone.now()
         if status == 'upcoming':
             queryset = queryset.filter(date__gte=now)
         elif status == 'past':
             queryset = queryset.filter(date__lt=now)
+
         return queryset.distinct()
 
     def partial_update(self, request, *args, **kwargs):

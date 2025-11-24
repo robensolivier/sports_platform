@@ -8,39 +8,91 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-// Mock data for a match
-const match = {
-  id: 1,
-  teamA: "The Champions",
-  teamB: "The Warriors",
-  score: "3-2",
-  date: "2024-07-05",
-  tournament: "Summer Soccer Fest",
+type Team = {
+  name: string;
 };
 
-export default function MatchDetailPage({ params }: { params: { id: string } }) {
-  // In a real application, you would fetch the match data based on the id
-  // For now, we use the mock data
+type Match = {
+  id: string;
+  team_a?: Team | null;
+  team_b?: Team | null;
+  score_a?: number | null;
+  score_b?: number | null;
+  date: string;
+  location?: string | null;
+  tournament?: string | null;
+};
+
+export default function MatchDetailPage() {
+  const params = useParams();
+  const matchId =
+    typeof params.id === "string"
+      ? params.id
+      : Array.isArray(params.id)
+      ? params.id[0]
+      : "";
+  const [match, setMatch] = useState<Match | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!matchId) return;
+    const fetchMatch = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/matches/${matchId}/`
+        );
+        if (!res.ok) throw new Error("Erreur lors de la récupération du match");
+        const data = await res.json();
+        setMatch(data);
+      } catch (err: any) {
+        setError(err.message || "Erreur inconnue");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMatch();
+  }, [matchId]);
+
+  if (loading) {
+    return <div className="container mx-auto p-4">Chargement du match...</div>;
+  }
+  if (error || !match) {
+    return (
+      <div className="container mx-auto p-4 text-red-500">
+        Erreur : {error || "Aucun match trouvé."}
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4">
       <Card>
         <CardHeader>
           <CardTitle>
-            {match.teamA} vs {match.teamB}
+            {match.team_a?.name} vs {match.team_b?.name}
           </CardTitle>
           <CardDescription>
-            {match.tournament} - {match.date}
+            {match.tournament ?? "Tournoi inconnu"} -{" "}
+            {new Date(match.date).toLocaleString()}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center items-center text-4xl font-bold">
-            <p>{match.score}</p>
+            <p>
+              {match.score_a} - {match.score_b}
+            </p>
           </div>
+          <p>
+            Lieu : {match.location ?? "-"}
+            <br />
+            Match ID : {match.id}
+          </p>
         </CardContent>
-        <CardFooter>
-          <p>Match ID: {params.id}</p>
-        </CardFooter>
       </Card>
     </div>
   );

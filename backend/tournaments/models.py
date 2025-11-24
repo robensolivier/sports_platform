@@ -1,6 +1,7 @@
 import uuid
-from django.contrib.auth.models import User
 from django.db import models
+from accounts.models import User
+
 
 
 
@@ -11,7 +12,7 @@ class Tournament(models.Model):
     sport = models.CharField(max_length=50)
     city = models.CharField(max_length=100)
     start_date = models.DateField()
-    organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tournaments')
+    organizer = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='tournaments')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Input } from "../../components/ui/input";
 import {
@@ -22,7 +23,8 @@ import {
   DialogTrigger,
 } from "../../components/ui/dialog";
 import { Label } from "../../components/ui/label";
-import teamService from "../services/teamService"; // Assurez-vous que le chemin est correct
+import { teamService } from "../services/teamService"; // Assurez-vous que le chemin est correct
+import useApi from "../hooks/useApi";
 
 type Team = {
   id: string;
@@ -32,6 +34,7 @@ type Team = {
 };
 
 export default function TeamsPage() {
+  const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +43,8 @@ export default function TeamsPage() {
   const [newTeamName, setNewTeamName] = useState("");
   const [newTeamSportValue, setNewTeamSportValue] = useState("");
 
-  const { getTeams, createTeam } = teamService();
+  const api = useApi();
+  const { getTeams, createTeam } = teamService(api);
 
   const fetchTeams = async () => {
     try {
@@ -84,53 +88,66 @@ export default function TeamsPage() {
   };
 
   if (loading) {
-    return <div className="container mx-auto p-4">Chargement des équipes...</div>;
+    return (
+      <div className="container mx-auto p-4">Chargement des équipes...</div>
+    );
   }
 
   if (error) {
-    return <div className="container mx-auto p-4 text-red-500">Erreur : {error}</div>;
+    return (
+      <div className="container mx-auto p-4 text-red-500">Erreur : {error}</div>
+    );
   }
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Gérer les équipes</h1>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>Créer Équipe</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Créer une nouvelle équipe</DialogTitle>
-              <DialogDescription>
-                Remplissez les détails ci-dessous pour créer une nouvelle équipe.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Nom</Label>
-                <Input
-                  id="name"
-                  value={newTeamName}
-                  onChange={(e) => setNewTeamName(e.target.value)}
-                  className="col-span-3"
-                />
+        {user?.publicMetadata?.role === "organisateur" && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>Créer Équipe</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Créer une nouvelle équipe</DialogTitle>
+                <DialogDescription>
+                  Remplissez les détails ci-dessous pour créer une nouvelle
+                  équipe.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Nom
+                  </Label>
+                  <Input
+                    id="name"
+                    value={newTeamName}
+                    onChange={(e) => setNewTeamName(e.target.value)}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="sport" className="text-right">
+                    Sport
+                  </Label>
+                  <Input
+                    id="sport"
+                    value={newTeamSportValue}
+                    onChange={(e) => setNewTeamSportValue(e.target.value)}
+                    className="col-span-3"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="sport" className="text-right">Sport</Label>
-                <Input
-                  id="sport"
-                  value={newTeamSportValue}
-                  onChange={(e) => setNewTeamSportValue(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" onClick={handleCreateTeam}>Créer</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button type="submit" onClick={handleCreateTeam}>
+                  Créer
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="mb-4">

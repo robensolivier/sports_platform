@@ -1,5 +1,3 @@
-import useApi from "../hooks/useApi";
-
 // Typage strict pour les équipes
 export type TeamResponse = {
   id: string;
@@ -13,13 +11,10 @@ export type TeamPayload = {
   sport: string;
 };
 
-const teamService = () => {
-  const api = useApi();
-
+const teamService = (api: any) => {
   const getTeams = async (): Promise<TeamResponse[]> => {
     try {
-      const response = await api.get("/tournaments/teams/"); 
-      // Forcer le typage et s'assurer que sport est string
+      const response = await api.get("/tournaments/teams/");
       return response.data.map((team: any) => ({
         id: String(team.id),
         name: String(team.name),
@@ -71,4 +66,4 @@ const teamService = () => {
   };
 };
 
-export default teamService;
+export { teamService };

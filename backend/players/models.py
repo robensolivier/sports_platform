@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from accounts.models import User
 
@@ -9,11 +10,12 @@ class PlayerProfile(models.Model):
         ('intermediate', 'Intermédiaire'),
         ('advanced', 'Avancé'),
     ]
-    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.OneToOneField(
-        User, 
+        User,
         on_delete=models.CASCADE,
-        related_name="player_profile"
+        related_name="player_profile",
+        to_field='id'
     )
     city = models.CharField(max_length=100, blank=True)
     favorite_sport = models.CharField(max_length=50, blank=True)

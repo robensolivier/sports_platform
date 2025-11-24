@@ -37,45 +37,65 @@ export default function MatchesPage() {
     score_a?: number | null;
     score_b?: number | null;
     date: string;
+    location?: string | null;
   };
 
   const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); // Add error state
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<"upcoming" | "past">("upcoming");
   const { getMatches } = matchService();
 
   useEffect(() => {
     const fetchMatches = async () => {
+      setLoading(true);
       try {
-        const data = await getMatches();
+        const data = await getMatches(status);
         setMatches(data);
-      } catch (error: any) { // Catch any error type
+      } catch (error: any) {
         console.error("Failed to fetch matches:", error);
-        setError(error.message || "Failed to load matches."); // Set user-friendly error message
+        setError(error.message || "Failed to load matches.");
       } finally {
         setLoading(false);
       }
     };
     fetchMatches();
-  }, []);
+  }, [status]);
 
   // For now, we'll assume a user is an organizer if their username is 'organizer'
-  const isOrganizer = user?.username === 'organizer';
+  const isOrganizer = user?.username === "organizer";
 
   if (loading) {
     return <div className="container mx-auto p-4">Loading matches...</div>;
   }
 
   if (error) {
-    return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
+    return (
+      <div className="container mx-auto p-4 text-red-500">Error: {error}</div>
+    );
   }
 
+  // Affiche tous les matchs reçus du backend
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Matches</h1>
+        <div className="flex gap-2">
+          <Button
+            variant={status === "upcoming" ? "default" : "outline"}
+            onClick={() => setStatus("upcoming")}
+          >
+            À venir
+          </Button>
+          <Button
+            variant={status === "past" ? "default" : "outline"}
+            onClick={() => setStatus("past")}
+          >
+            Passés
+          </Button>
+        </div>
         {isOrganizer && (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -85,7 +105,7 @@ export default function MatchesPage() {
               <DialogHeader>
                 <DialogTitle>Créer un nouveau match</DialogTitle>
                 <DialogDescription>
-                Remplissez les détails ci-dessous pour créer un nouveau match.
+                  Remplissez les détails ci-dessous pour créer un nouveau match.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -115,7 +135,9 @@ export default function MatchesPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" onClick={() => setOpen(false)}>Create</Button>
+                <Button type="submit" onClick={() => setOpen(false)}>
+                  Create
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -127,7 +149,8 @@ export default function MatchesPage() {
             <TableHead>Équipe A</TableHead>
             <TableHead>Équipe B</TableHead>
             <TableHead>Résultat</TableHead>
-            <TableHead>Date</TableHead>
+            <TableHead>Date & Heure</TableHead>
+            <TableHead>Lieu</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -136,8 +159,11 @@ export default function MatchesPage() {
             <TableRow key={match.id}>
               <TableCell>{match.team_a?.name}</TableCell>
               <TableCell>{match.team_b?.name}</TableCell>
-              <TableCell>{match.score_a} - {match.score_b}</TableCell>
-              <TableCell>{new Date(match.date).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {match.score_a} - {match.score_b}
+              </TableCell>
+              <TableCell>{new Date(match.date).toLocaleString()}</TableCell>
+              <TableCell>{match.location ?? "-"}</TableCell>
               <TableCell>
                 <Link href={`/matches/${match.id}`}>
                   <p className="text-blue-500 hover:underline">Voir</p>

@@ -16,6 +16,7 @@ class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     full_name = serializers.CharField()
     role = serializers.ChoiceField(choices=["player", "organizer"])
+    is_registered = serializers.BooleanField(required=False)
 
 
 class RegisterView(APIView):
@@ -41,6 +42,7 @@ class RegisterView(APIView):
                 "email": data["email"],
                 "full_name": data["full_name"],
                 "role": data["role"],
+                "is_registered": data.get("is_registered", False),
             },
         )
 
@@ -49,6 +51,9 @@ class RegisterView(APIView):
             user.email = data["email"]
             user.full_name = data["full_name"]
             user.role = data["role"]
+            # Met à jour is_registered si fourni
+            if "is_registered" in data:
+                user.is_registered = data["is_registered"]
             user.save()
 
         return Response(

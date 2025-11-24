@@ -24,8 +24,8 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
             if team.tournament.organizer != request.user:
                 return Response({'erreur': "Seul l'organisateur de l'équipe peut accepter la demande."}, status=status.HTTP_403_FORBIDDEN)
             # Vérifier que l'équipe n'est pas pleine
-            if hasattr(team, 'max_capacity') and hasattr(team, 'current_capacity'):
-                if team.current_capacity >= team.max_capacity:
+            if hasattr(team, 'max_capacity') and hasattr(team, 'capacity_now'):
+                if team.capacity_now >= team.max_capacity:
                     return Response({'erreur': "L'équipe est déjà pleine."}, status=status.HTTP_400_BAD_REQUEST)
                 # Ajouter le joueur à l'équipe
                 if hasattr(team, 'members'):

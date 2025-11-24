@@ -37,14 +37,19 @@ class TournamentSerializer(serializers.ModelSerializer):
 
 class TeamSerializer(serializers.ModelSerializer):
     members_count = serializers.SerializerMethodField()
+    members = serializers.SerializerMethodField()
 
     class Meta:
         model = Team
         fields = ['id', 'name', 'sport', 'members', 'members_count']
-        read_only_fields = ['id', 'members_count'] # members_count is read-only
+        read_only_fields = ['id', 'members_count', 'members']
 
     def get_members_count(self, obj):
         return obj.members.count()
+
+    def get_members(self, obj):
+        # Retourne la liste des ids des membres
+        return [str(member.id) for member in obj.members.all()]
 
     def create(self, validated_data):
         # Call the original create method

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function RegisterAccountPage() {
   const { user } = useUser();
@@ -14,25 +15,34 @@ export default function RegisterAccountPage() {
   const [role, setRole] = useState("player");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("/api/accounts/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          full_name: fullName,
-          role,
-          clerk_id: clerkId,
-        }),
-      });
+      const res = await fetch(
+        "http://localhost:8000/api/accounts/auth/register/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            full_name: fullName,
+            role,
+            clerk_id: clerkId,
+            is_registered: true,
+          }),
+        }
+      );
       const data = await res.json();
       if (res.ok) {
         setMessage("Inscription réussie !");
+        window.dispatchEvent(new Event("userRegistered"));
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
       } else {
         setMessage(data.detail || "Erreur lors de l'inscription.");
       }
@@ -87,7 +97,15 @@ export default function RegisterAccountPage() {
           {loading ? "Inscription..." : "S'inscrire"}
         </button>
         {message && (
-          <div className="mt-2 text-center text-red-600">{message}</div>
+          <div
+            className={`mt-2 text-center ${
+              message === "Inscription réussie !"
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            {message}
+          </div>
         )}
       </form>
     </div>

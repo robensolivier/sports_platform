@@ -9,16 +9,10 @@ export default function Page() {
 
   useEffect(() => {
     if (user) {
-      fetch("/accounts/auth/login/", {
+      fetch("/api/accounts/auth/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ clerk_id: user.id }),
-      }).then((res) => {
-        if (res.ok) {
-          router.push("/"); // Redirige vers l'accueil si l'id Clerk est dans la BDD
-        } else {
-          router.push("/account-signup"); // Redirige vers la page d'inscription sinon
-        }
       });
     }
   }, [user, router]);
