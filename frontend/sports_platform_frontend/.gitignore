@@ -51,3 +51,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# except example env file
+!.env.local.example
