@@ -49,7 +49,9 @@ export default function MatchesPage() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const data = await getMatches();
+        // Appel à l'API filtrée par joueur
+        const res = await fetch(`/api/matches?player_id=${user?.id}`);
+        const data = await res.json();
         setMatches(data);
       } catch (error: any) {
         // Catch any error type
@@ -59,8 +61,8 @@ export default function MatchesPage() {
         setLoading(false);
       }
     };
-    fetchMatches();
-  }, []);
+    if (user) fetchMatches();
+  }, [user]);
 
   // For now, we'll assume a user is an organizer if their username is 'organizer'
   const isOrganizer = user?.username === "organizer";
