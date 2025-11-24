@@ -25,7 +25,7 @@ class PlayerProfile(models.Model):
     position = models.CharField(
         max_length=255,
         blank=True,
-        help_text="Exemple : Soir, Week-end, Lundi/Jeudi..."
+        help_text="Exemple : Attaquant, Défenseur, Gardien..."
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

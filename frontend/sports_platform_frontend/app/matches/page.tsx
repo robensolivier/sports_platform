@@ -49,32 +49,27 @@ export default function MatchesPage() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        // Appel à l'API filtrée par joueur
-        const res = await fetch(`/api/matches?player_id=${user?.id}`);
-        const data = await res.json();
+        const data = await getMatches();
         setMatches(data);
-      } catch (error: any) {
-        // Catch any error type
+      } catch (error: any) { // Catch any error type
         console.error("Failed to fetch matches:", error);
         setError(error.message || "Failed to load matches."); // Set user-friendly error message
       } finally {
         setLoading(false);
       }
     };
-    if (user) fetchMatches();
-  }, [user]);
+    fetchMatches();
+  }, []);
 
   // For now, we'll assume a user is an organizer if their username is 'organizer'
-  const isOrganizer = user?.username === "organizer";
+  const isOrganizer = user?.username === 'organizer';
 
   if (loading) {
     return <div className="container mx-auto p-4">Loading matches...</div>;
   }
 
   if (error) {
-    return (
-      <div className="container mx-auto p-4 text-red-500">Error: {error}</div>
-    );
+    return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
   }
 
   return (
@@ -90,7 +85,7 @@ export default function MatchesPage() {
               <DialogHeader>
                 <DialogTitle>Créer un nouveau match</DialogTitle>
                 <DialogDescription>
-                  Remplissez les détails ci-dessous pour créer un nouveau match.
+                Remplissez les détails ci-dessous pour créer un nouveau match.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -120,9 +115,7 @@ export default function MatchesPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" onClick={() => setOpen(false)}>
-                  Create
-                </Button>
+                <Button type="submit" onClick={() => setOpen(false)}>Create</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -143,9 +136,7 @@ export default function MatchesPage() {
             <TableRow key={match.id}>
               <TableCell>{match.team_a?.name}</TableCell>
               <TableCell>{match.team_b?.name}</TableCell>
-              <TableCell>
-                {match.score_a} - {match.score_b}
-              </TableCell>
+              <TableCell>{match.score_a} - {match.score_b}</TableCell>
               <TableCell>{new Date(match.date).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Link href={`/matches/${match.id}`}>
