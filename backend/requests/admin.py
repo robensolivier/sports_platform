@@ -5,10 +5,10 @@ from .models import JoinRequest
 class JoinRequestAdmin(admin.ModelAdmin):
     list_display = ['get_player_username', 'get_player_email', 'get_team_name', 'status', 'message', 'created_at']
     list_filter = ['status', 'created_at']
-    search_fields = ['player__username', 'player__email', 'team__name']
+    search_fields = ['player__full_name', 'player__email', 'team__name']
 
     def get_player_username(self, obj):
-        return obj.player.username
+        return obj.player.full_name
     get_player_username.short_description = 'Joueur'
 
     def get_player_email(self, obj):

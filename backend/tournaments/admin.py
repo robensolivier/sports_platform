@@ -5,10 +5,10 @@ from .models import Tournament, Team
 class TournamentAdmin(admin.ModelAdmin):
     list_display = ['name', 'sport', 'city', 'start_date', 'get_organizer_username', 'get_organizer_email']
     list_filter = ['sport', 'city', 'start_date']
-    search_fields = ['name', 'sport', 'organizer__username', 'organizer__email']
+    search_fields = ['name', 'sport', 'organizer__full_name', 'organizer__email']
 
     def get_organizer_username(self, obj):
-        return obj.organizer.username
+        return obj.organizer.full_name
     get_organizer_username.short_description = 'Organisateur'
 
     def get_organizer_email(self, obj):
@@ -17,10 +17,11 @@ class TournamentAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ['name', 'get_tournament_name', 'current_capacity', 'max_capacity']
-    list_filter = ['tournament']
-    search_fields = ['name', 'tournament__name']
+    list_display = ['name', 'sport', 'get_member_count']
 
-    def get_tournament_name(self, obj):
-        return obj.tournament.name
-    get_tournament_name.short_description = 'Tournoi'
+    list_filter = ['sport']
+    search_fields = ['name', 'sport']
+
+    def get_member_count(self, obj):
+        return obj.members.count()
+    get_member_count.short_description = 'membres'

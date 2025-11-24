@@ -13,6 +13,10 @@ class User(models.Model):
         ('organizer', 'Organisateur')
     ])
     created_at = models.DateTimeField(auto_now_add=True)
+    is_registered = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.full_name
 
     class Meta:
         db_table = 'users'

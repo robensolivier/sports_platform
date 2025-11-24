@@ -27,7 +27,6 @@ class JoinRequestSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Validation globale de la demande"""
         team = data.get('team')
-        # Pour la création, le joueur sera assigné dans perform_create, donc on ne vérifie pas ici
         if self.instance:
             player = data.get('player') or getattr(self.instance, 'player', None)
             if not player:

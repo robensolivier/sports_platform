@@ -1,18 +1,41 @@
-from django.contrib.auth.models import User
+import uuid
 from django.db import models
-
+from accounts.models import User
 
 class PlayerProfile(models.Model):
     """Profil étendu pour les joueurs"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    city = models.CharField(max_length=100)
-    favorite_sport = models.CharField(max_length=50)
-    level = models.CharField(max_length=20, choices=[
+    
+    LEVEL_CHOICES = [
         ('beginner', 'Débutant'),
         ('intermediate', 'Intermédiaire'),
-        ('advanced', 'Avancé')
-    ])
-    position = models.CharField(max_length=50, blank=True)
+        ('advanced', 'Avancé'),
+    ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="player_profile",
+        to_field='id'
+    )
+    city = models.CharField(max_length=100, blank=True)
+    favorite_sport = models.CharField(max_length=50, blank=True)
+    level = models.CharField(
+        max_length=20,
+        choices=LEVEL_CHOICES,
+        default='beginner',
+    )
+    position = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Exemple : Attaquant, Défenseur, Gardien..."
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'player_profiles'
+        verbose_name = 'Profil Joueur'
+        verbose_name_plural = 'Profils Joueurs'
+
+    def __str__(self):
+        return f"Profil joueur de {self.user.full_name}"

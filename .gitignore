@@ -8,6 +8,8 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
 # Django
 *.sqlite3
@@ -18,4 +20,6 @@ node_modules/
 
 # OS
 .DS_Store
->>>>>>> origin/main
+venv/
+env/
+db.sqlite3

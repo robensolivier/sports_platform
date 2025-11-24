@@ -1,65 +1,174 @@
-import Image from "next/image";
+"use client";
+
+import Link from "next/link";
+import { Button } from "../components/ui/button";
+import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import useApi from "./hooks/useApi";
+
+interface Tournament {
+  id: number;
+  name: string;
+  // Add other fields as per your Tournament model
+}
 
 export default function Home() {
+  const api = useApi();
+  const { isLoaded, isSignedIn, user } = useUser();
+  const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get("/tournaments/");
+        setTournaments(response.data);
+      } catch (err) {
+        setError("Failed to fetch tournaments.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTournaments();
+  }, [api]);
+
+  // Fonction unique pour récupérer le statut d'inscription
+  const fetchRegistrationStatus = async () => {
+    if (isSignedIn && user?.id) {
+      try {
+        const res = await fetch(
+          "http://localhost:8000/api/accounts/auth/login/",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clerk_id: user.id }),
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setIsRegistered(data.user?.is_registered ?? false);
+        } else {
+          setIsRegistered(false);
+        }
+      } catch {
+        setIsRegistered(false);
+      }
+    } else {
+      setIsRegistered(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchRegistrationStatus();
+  }, [isSignedIn, user]);
+
+  // Rafraîchit le statut si signalé par localStorage (après inscription)
+  useEffect(() => {
+    const refreshStatus = () => {
+      if (window.localStorage.getItem("refreshRegistrationStatus") === "1") {
+        fetchRegistrationStatus();
+        window.localStorage.removeItem("refreshRegistrationStatus");
+      }
+    };
+    window.addEventListener("focus", refreshStatus);
+    refreshStatus();
+    return () => {
+      window.removeEventListener("focus", refreshStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchRegistrationStatus();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isSignedIn, user]);
+
+  const showButtons = isSignedIn && isRegistered === true;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="flex-grow">
+      <section className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-5xl md:text-6xl">
+          Bienvenue sur Sports Platform
+        </h1>
+        <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400">
+          Organisez et suivez vos tournois sportifs préférés en toute
+          simplicité.
+        </p>
+        {showButtons && (
+          <div className="mt-10 flex justify-center gap-4">
+            <Link href="/tournaments">
+              <Button size="lg"> Tournois</Button>
+            </Link>
+            <Link href="/players">
+              <Button size="lg" variant="outline">
+                Joueur
+              </Button>
+            </Link>
+          </div>
+        )}
+        {isSignedIn && isRegistered === false && (
+          <div className="mt-10 flex flex-col items-center">
+            <div className="text-lg text-blue-700 dark:text-blue-300 font-semibold mb-4">
+              Inscrivez-vous pour en savoir plus sur la plateforme !
+            </div>
+            <Link href="/account-signup">
+              <Button size="lg" variant="default">
+                Inscription
+              </Button>
+            </Link>
+          </div>
+        )}
+      </section>
+
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8 text-center">
+          Upcoming Tournaments
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {loading && (
+            <p className="text-center w-full col-span-full">
+              Loading tournaments...
+            </p>
+          )}
+          {error && (
+            <p className="text-center w-full col-span-full text-red-500">
+              {error}
+            </p>
+          )}
+          {!loading && !error && tournaments.length === 0 && (
+            <p className="text-center w-full col-span-full">
+              Aucun Tournois Trouvé.
+            </p>
+          )}
+          {tournaments.map((tournament) => (
+            <div
+              key={tournament.id}
+              className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                {tournament.name}
+              </h3>
+              {/* Add more tournament details here */}
+              <Link href={`/tournaments/${tournament.id}`}>
+                <Button variant="outline" className="mt-4">
+                  Voir Détails
+                </Button>
+              </Link>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }

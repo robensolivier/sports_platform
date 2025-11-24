@@ -1,5 +1,4 @@
 import uuid
-from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -12,7 +11,7 @@ class JoinRequest(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    player = models.ForeignKey(User, on_delete=models.CASCADE, related_name='join_requests')
+    player = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='join_requests')
     team = models.ForeignKey('tournaments.Team', on_delete=models.CASCADE, related_name='join_requests')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     message = models.TextField(blank=True)
