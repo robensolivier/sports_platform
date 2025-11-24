@@ -5,8 +5,20 @@ from django.db import models
 class Match(models.Model):
     """Match entre deux équipes"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    team_a = models.ForeignKey('tournaments.Team', on_delete=models.CASCADE, related_name='matches_as_team_a')
-    team_b = models.ForeignKey('tournaments.Team', on_delete=models.CASCADE, related_name='matches_as_team_b')
+    #team_a = models.ForeignKey('tournaments.Team', on_delete=models.CASCADE, related_name='matches_as_team_a')
+    #team_b = models.ForeignKey('tournaments.Team', on_delete=models.CASCADE, related_name='matches_as_team_b')
+    team_a = models.ForeignKey(
+    'tournaments.Team', 
+    on_delete=models.CASCADE, 
+    related_name='matches_as_team_a', 
+    null=True, blank=True
+    )
+    team_b = models.ForeignKey(
+    'tournaments.Team', 
+    on_delete=models.CASCADE, 
+    related_name='matches_as_team_b', 
+    null=True, blank=True
+    )
     date = models.DateTimeField()
     location = models.CharField(max_length=200)
     score_a = models.IntegerField(null=True, blank=True)

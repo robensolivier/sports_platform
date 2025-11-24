@@ -13,7 +13,14 @@ class JoinRequest(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     player = models.ForeignKey(User, on_delete=models.CASCADE, related_name='join_requests')
-    team = models.ForeignKey('tournaments.Team', on_delete=models.CASCADE, related_name='join_requests')
+    #team = models.ForeignKey('tournaments.Team', on_delete=models.CASCADE, related_name='join_requests')
+    team = models.ForeignKey(
+    'tournaments.Team',
+    on_delete=models.CASCADE,
+    related_name='join_requests',
+    null=True,
+    blank=True
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     message = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

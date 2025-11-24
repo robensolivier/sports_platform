@@ -1,5 +1,6 @@
 import uuid
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from accounts.models import User
 from django.db import models
 
 
@@ -47,3 +48,5 @@ class Team(models.Model):
         return self.members.count()
     class Meta:
         db_table = 'teams'
+
+
